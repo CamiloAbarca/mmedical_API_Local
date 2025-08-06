@@ -64,7 +64,16 @@ exports.loginUsuario = async (req, res) => {
       }
     );
 
-    res.json({ token });
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        nombre: user.nombre,
+        apellido: user.apellido,
+        email: user.email,
+        rut: user.rut,
+      },
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

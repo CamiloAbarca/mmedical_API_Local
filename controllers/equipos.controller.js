@@ -48,6 +48,7 @@ exports.createEquipo = async (req, res) => {
     fecha_ingreso,
     fecha_entrega,
     fecha_mantencion,
+    fecha_periodo,
     detalle,
     accesorios,
     id_cliente,
@@ -57,9 +58,9 @@ exports.createEquipo = async (req, res) => {
     const [result] = await pool.query(
       `INSERT INTO equipos 
        (nro_serie, tipo, marca, modelo, estado,
-       fecha_ingreso, fecha_entrega, fecha_mantencion,
+       fecha_ingreso, fecha_entrega, fecha_mantencion, fecha_periodo,
        detalle, accesorios, id_cliente, create_at, update_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
         nro_serie,
         tipo,
@@ -69,6 +70,7 @@ exports.createEquipo = async (req, res) => {
         fecha_ingreso,
         fecha_entrega,
         fecha_mantencion,
+        fecha_periodo,
         detalle,
         accesorios,
         id_cliente,
