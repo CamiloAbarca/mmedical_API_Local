@@ -7,7 +7,7 @@ const { validationResult } = require("express-validator");
 exports.getAllUsuarios = async (req, res) => {
   try {
     const [rows] = await pool.query(
-      "SELECT id, nombre, apellido, rut, email, created_at FROM usuarios"
+      "SELECT id, nombre, apellido, rut, email, tipo, created_at FROM usuarios"
     );
     res.json(rows);
   } catch (error) {
@@ -21,15 +21,15 @@ exports.registerUsuario = async (req, res) => {
   if (!errors.isEmpty())
     return res.status(400).json({ errors: errors.array() });
 
-  const { nombre, apellido, rut, email, password } = req.body;
+  const { nombre, apellido, rut, email, password, tipo = "usuario" } = req.body;
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const [result] = await pool.query(
-      `INSERT INTO usuarios (nombre, apellido, rut, email, password, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, NOW(), NOW())`,
-      [nombre, apellido, rut, email, hashedPassword]
+      `INSERT INTO usuarios (nombre, apellido, rut, email, password, tipo, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+      [nombre, apellido, rut, email, hashedPassword, tipo]
     );
 
     res
@@ -57,7 +57,7 @@ exports.loginUsuario = async (req, res) => {
       return res.status(401).json({ message: "Contraseña incorrecta" });
 
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { id: user.id, email: user.email, tipo: user.tipo },
       process.env.JWT_SECRET,
       {
         expiresIn: "1d",
@@ -72,6 +72,7 @@ exports.loginUsuario = async (req, res) => {
         apellido: user.apellido,
         email: user.email,
         rut: user.rut,
+        tipo: user.tipo,
       },
     });
   } catch (error) {
