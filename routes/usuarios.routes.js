@@ -19,7 +19,7 @@ const usuarioValidation = [
 router.get("/", authMiddleware, usuariosController.getAllUsuarios);
 router.post("/register", usuarioValidation, usuariosController.registerUsuario);
 router.post("/login", usuariosController.loginUsuario);
-router.put('/usuarios/:id', usuariosController.updateUsuario);
-router.delete('/usuarios/:id', usuariosController.deleteUsuario);
+router.put('/:id', usuariosController.updateUsuario);
+router.delete('/:id', usuariosController.deleteUsuario);
 
 module.exports = router;
