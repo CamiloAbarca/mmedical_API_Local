@@ -104,10 +104,9 @@ exports.deleteUsuario = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const [result] = await pool.query(
-      `DELETE FROM usuarios WHERE id = ?`,
-      [id]
-    );
+    const [result] = await pool.query(`DELETE FROM usuarios WHERE id = ?`, [
+      id,
+    ]);
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
@@ -117,4 +116,40 @@ exports.deleteUsuario = async (req, res) => {
   }
 };
 
+// Cambiar contraseña de usuario (NUEVA FUNCIÓN)
+exports.changePassword = async (req, res) => {
+  const { id } = req.params;
+  const { currentPassword, newPassword } = req.body;
 
+  try {
+    const [rows] = await pool.query(
+      "SELECT password FROM usuarios WHERE id = ?",
+      [id]
+    );
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    const user = rows[0];
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Contraseña actual incorrecta" });
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    const [result] = await pool.query(
+      "UPDATE usuarios SET password = ?, updated_at = NOW() WHERE id = ?",
+      [hashedNewPassword, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ message: "Error al actualizar la contraseña" });
+    }
+
+    res.json({ message: "Contraseña actualizada con éxito" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

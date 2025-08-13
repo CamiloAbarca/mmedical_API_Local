@@ -19,7 +19,12 @@ const usuarioValidation = [
 router.get("/", authMiddleware, usuariosController.getAllUsuarios);
 router.post("/register", usuarioValidation, usuariosController.registerUsuario);
 router.post("/login", usuariosController.loginUsuario);
-router.put('/:id', usuariosController.updateUsuario);
-router.delete('/:id', usuariosController.deleteUsuario);
+router.put("/:id", usuariosController.updateUsuario);
+router.delete("/:id", usuariosController.deleteUsuario);
+router.put(
+  "/change-password/:id",
+  authMiddleware,
+  usuariosController.changePassword
+); // NUEVA RUTA PARA CAMBIO DE CONTRASEÑA
 
 module.exports = router;
