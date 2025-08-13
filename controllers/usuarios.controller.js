@@ -79,3 +79,42 @@ exports.loginUsuario = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Editar usuario
+exports.updateUsuario = async (req, res) => {
+  const { id } = req.params;
+  const { nombre, apellido, rut, email, tipo } = req.body;
+
+  try {
+    const [result] = await pool.query(
+      `UPDATE usuarios SET nombre = ?, apellido = ?, rut = ?, email = ?, tipo = ?, updated_at = NOW() WHERE id = ?`,
+      [nombre, apellido, rut, email, tipo, id]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+    res.json({ message: "Usuario actualizado" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Eliminar usuario
+exports.deleteUsuario = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [result] = await pool.query(
+      `DELETE FROM usuarios WHERE id = ?`,
+      [id]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+    res.json({ message: "Usuario eliminado" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
