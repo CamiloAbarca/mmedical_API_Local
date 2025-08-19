@@ -2,6 +2,7 @@ const pool = require("../config/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { validationResult } = require("express-validator");
+const nodemailer = require("nodemailer");
 
 // Obtener todos los usuarios
 exports.getAllUsuarios = async (req, res) => {
@@ -31,6 +32,44 @@ exports.registerUsuario = async (req, res) => {
        VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [nombre, apellido, rut, email, hashedPassword, tipo]
     );
+
+    // --- Lógica para enviar correo electrónico ---
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST,
+      port: process.env.EMAIL_PORT,
+      secure: true,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: "no-reply@mmedical.cl",
+      to: email,
+      subject: "Nuevo Usuario - Mmedical Control",
+      html: `
+        <p>Hola ${nombre},</p>
+        <p>Tu cuenta ha sido creada en el sistema de Mmedical Control. Aquí están tus credenciales de acceso:</p>
+        <ul>
+          <li><strong>Usuario:</strong> ${email}</li>
+          <li><strong>Contraseña:</strong> ${password}</li>
+        </ul>
+        <p>Puedes acceder al sistema haciendo clic en el siguiente enlace: <a href="https://mmedical.cl/control/">Iniciar Sesión</a></p>
+        <p>Por favor, cambia tu contraseña después de iniciar sesión por primera vez.</p>
+        <p>Saludos cordiales,<br><br>
+        Equipo Mmedical</p>
+      `,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error al enviar el correo:", error);
+      } else {
+        console.log("Correo enviado:", info.response);
+      }
+    });
+    // --- Fin de la lógica de correo ---
 
     res
       .status(201)
